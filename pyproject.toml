@@ -1,0 +1,46 @@
+[project]
+name = "doc-auditor-agent"
+version = "0.1.0"
+description = "API Doc Sentinel — Monitor automático de mudanças em documentações técnicas de marketplaces e e-commerces"
+authors = [
+    { name = "Fábio de Oliveira Freire", email = "freirefabio.ff@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    # === AGNO (Framework de Agentes de IA) ===
+    "agno>=1.7.0",
+
+    # === LLM: Google Gemini (integração com Agno) ===
+    "google-genai>=1.0.0",
+
+    # === SCRAPING (Baixar e limpar páginas HTML) ===
+    "httpx>=0.27.0",
+    "beautifulsoup4>=4.12.0",
+    "html2text>=2024.2.26",
+
+    # === BANCO DE DADOS (Persistência) ===
+    "sqlalchemy>=2.0.0",
+
+    # === BACKEND (API REST) ===
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+
+    # === AGENDADOR (Execução automática periódica) ===
+    "apscheduler>=3.10.0",
+
+    # === INTERFACE VISUAL ===
+    "streamlit>=1.39.0",
+
+    # === VARIÁVEIS DE AMBIENTE (Leitura do arquivo .env) ===
+    "python-dotenv>=1.0.0",
+
+    # === VALIDAÇÃO DE DADOS (já vem com Agno, mas deixamos explícito) ===
+    "pydantic>=2.9.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]

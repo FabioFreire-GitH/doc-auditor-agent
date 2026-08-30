@@ -1,0 +1,47 @@
+# === SEGURANÇA: NUNCA enviar para o GitHub ===
+.env
+*.env
+.env.*
+!.env.example
+
+# === Banco de dados local ===
+*.db
+*.sqlite
+*.sqlite3
+
+# === Ambiente virtual Python (gerado pelo uv) ===
+.venv/
+venv/
+env/
+
+# === Cache do Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# === Logs ===
+*.log
+logs/
+
+# === uv lockfile (pode incluir se quiser reproducibilidade) ===
+# uv.lock
+
+# === IDEs e editores ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === Sistema operacional ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Streamlit ===
+.streamlit/
+
+# === Distribuição / build ===
+dist/
+build/
+*.egg-info/
