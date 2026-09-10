@@ -4,6 +4,15 @@ O **API Doc Sentinel** é um serviço autônomo de auditoria de documentação t
 
 Adeus a ficar lendo *changelogs* ou sofrer com quebras de integração silenciosas!
 
+## 📸 Telas do Sistema
+<div align="center">
+  <img src="fontes-monitoradas.png" width="800" alt="Fontes Monitoradas" />
+  <br/><br/>
+  <img src="historico-de-alertas.png" width="800" alt="Histórico de Alertas" />
+  <br/><br/>
+  <img src="cadastrar-url.png" width="800" alt="Cadastrar URL" />
+</div>
+
 ## Como funciona?
 
 O sistema usa uma abordagem híbrida inteligente para economizar tokens e garantir precisão:
@@ -14,6 +23,27 @@ O sistema usa uma abordagem híbrida inteligente para economizar tokens e garant
 4. **Auditor IA (Agno + Gemini)**: Se o hash mudou, o novo texto é enviado para o Gemini. A IA analisa se foi uma mudança cosmética (ex: erro de digitação corrigido) ou uma mudança técnica (ex: novo campo obrigatório, endpoint depreciado).
 5. **E-mail Inteligente**: Se for uma mudança relevante, você recebe um e-mail com a severidade, resumo e ação recomendada gerada pela IA.
 
+### 🏗️ Arquitetura do Sistema
+
+```mermaid
+graph TD
+    A[Scheduler / Trigger] --> B[Pipeline Workflow]
+    B --> C[Extrator HTML]
+    C --> D[Hasher]
+    
+    D -->|Hash Igual| E[Fim. Nenhum custo de IA]
+    D -->|Hash Diferente| F[Agno Agent + Gemini]
+    
+    F -->|Mudança Cosmética| G[Salva versão, mas ignora]
+    F -->|Mudança Técnica| H[Salva Alerta no Banco]
+    
+    H --> I[Email Sender]
+    I --> J[Caixa de Entrada da Equipe]
+    
+    K[FastAPI Backend] -->|Consulta| H
+    L[Streamlit Dashboard] -->|Consome| K
+```
+
 ---
 
 ## 🚀 Como instalar e rodar (Guia Rápido)
@@ -21,9 +51,14 @@ O sistema usa uma abordagem híbrida inteligente para economizar tokens e garant
 Este projeto usa o **`uv`** como gerenciador de pacotes ultrarrápido do Python.
 
 ### 1. Preparando o Ambiente
-Clone o repositório e instale as dependências:
+Clone o repositório e instale as dependências.
+Se você usa o `uv` (recomendado):
 ```bash
 uv sync
+```
+Ou se usa o tradicional `pip`:
+```bash
+pip install -r requirements.txt
 ```
 
 ### 2. Configurando Senhas e APIs
