@@ -45,3 +45,8 @@ desktop.ini
 dist/
 build/
 *.egg-info/
+
+# === Documentação Interna / Rascunhos ===
+future_roadmap.md
+project_status.md
+implementation_plan.md
