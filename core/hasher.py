@@ -75,7 +75,7 @@ def conteudo_mudou(hash_anterior: str | None, conteudo_atual: str) -> tuple[bool
     # Se não tem hash anterior, é o primeiro monitoramento dessa URL
     # Salvamos o snapshot mas não geramos alerta (não há "antes" para comparar)
     if hash_anterior is None:
-        print("  → Primeiro snapshot desta URL. Salvando baseline sem análise.")
+        print("  [INFO] Primeiro snapshot desta URL. Salvando baseline sem analise.")
         return False, hash_atual
     
     # Comparação simples: strings iguais ou diferentes

@@ -17,10 +17,12 @@ CONCEITOS IMPORTANTES:
       Se a IA tentar retornar algo fora do schema, Pydantic rejeita.
     - Agno Agent: Wrapper que gerencia a comunicação com o LLM, injeta
       as instruções (system prompt) e força o formato de saída.
-    - response_model: O parâmetro que diz ao Agno "quero a resposta NESSE formato".
+    - Parsing manual: Sem output_schema no agno (ele valida internamente e quebra
+      em erros de API). Fazemos o parse de JSON nós mesmos para controle total.
 """
 
 import os
+import time
 from typing import List, Literal
 
 from agno.agent import Agent
@@ -114,7 +116,7 @@ def criar_agente() -> Agent:
     """
     modelo = Gemini(
         # id: qual versão do Gemini usar (configurável pelo .env)
-        id=os.getenv("GEMINI_MODEL", "gemini-2.0-flash"),
+        id=os.getenv("GEMINI_MODEL", "gemini-3.1-pro-preview"),
     )
 
     agente = Agent(
@@ -139,14 +141,20 @@ def criar_agente() -> Agent:
             "e severity=BAIXA.",
             "Responda SEMPRE em português brasileiro.",
             "Seja objetivo e direto. Evite linguagem vaga como 'pode ser necessário'.",
+            # Instrução de formato: como não usamos output_schema (ele valida
+            # internamente e quebra em erros de API), pedimos JSON explicitamente.
+            "Responda EXCLUSIVAMENTE com um objeto JSON válido, sem markdown, "
+            "sem blocos ```json```, sem texto antes ou depois. "
+            "O JSON deve conter exatamente estes campos: "
+            "has_relevant_changes (bool), is_breaking_change (bool), "
+            "severity (string: BAIXA|MEDIA|ALTA|CRITICA), "
+            "summary_ptbr (string), "
+            "affected_endpoints_or_modules (array de strings), "
+            "recommended_action (string).",
         ],
-        
-        # response_model: FORÇA a saída a seguir o schema APIDocAnalysis
-        # O Agno instrui o LLM a retornar JSON compatível e valida com Pydantic
-        response_model=APIDocAnalysis,
-        
+
         # markdown=False: não queremos formatação markdown na resposta,
-        # pois estamos esperando JSON estruturado
+        # pois estamos esperando JSON puro
         markdown=False,
     )
 
@@ -198,13 +206,58 @@ Analise as mudanças na documentação técnica abaixo e preencha o formulário 
 Com base nas diferenças entre as duas versões, preencha todos os campos do formulário.
 """
 
-    try:
-        print(f"  → Enviando diff para análise do Gemini...")
-        resposta = agente.run(prompt)
-        
-        # resposta.content contém o objeto Pydantic validado (APIDocAnalysis)
-        return resposta.content
+    # Erros 503 são transitórios (servidor sobrecarregado). Fazemos até 3 tentativas
+    # com backoff exponencial antes de desistir.
+    MAX_TENTATIVAS = 3
+    ESPERA_INICIAL = 5  # segundos
 
-    except Exception as e:
-        print(f"  → ERRO na análise do agente: {e}")
-        return None
+    for tentativa in range(1, MAX_TENTATIVAS + 1):
+        try:
+            if tentativa > 1:
+                espera = ESPERA_INICIAL * (2 ** (tentativa - 2))  # 5s, 10s, 20s
+                print(f"  → Tentativa {tentativa}/{MAX_TENTATIVAS} após {espera}s...")
+                time.sleep(espera)
+
+            print(f"  → Enviando diff para análise do Gemini...")
+            resposta = agente.run(prompt)
+
+            # resposta.content é texto bruto (string JSON ou texto do modelo).
+            # Fazemos o parse manualmente para ter controle total sobre erros de API.
+            content = resposta.content
+
+            if not isinstance(content, str) or not content.strip():
+                print(f"  → AVISO: resposta vazia ou tipo inesperado ({type(content)})")
+                return None
+
+            # Remove blocos ```json ... ``` caso o modelo os adicione mesmo com markdown=False
+            texto = content.strip()
+            if texto.startswith("```"):
+                linhas = texto.splitlines()
+                texto = "\n".join(linhas[1:-1] if linhas[-1].strip() == "```" else linhas[1:])
+
+            return APIDocAnalysis.model_validate_json(texto)
+
+        except Exception as e:
+            erro_str = str(e)
+
+            # 503: transitório — vale tentar novamente
+            if "503" in erro_str or "UNAVAILABLE" in erro_str:
+                if tentativa < MAX_TENTATIVAS:
+                    espera = ESPERA_INICIAL * (2 ** (tentativa - 1))  # 5s, 10s
+                    print(f"  → Servidor sobrecarregado (503). Aguardando {espera}s antes de nova tentativa...")
+                    time.sleep(espera)
+                    continue
+                print(f"  → ERRO da API: servidor sobrecarregado (503) após {MAX_TENTATIVAS} tentativas.")
+
+            # 429: cota excedida — não adianta retentar rapidamente
+            elif "429" in erro_str or "RESOURCE_EXHAUSTED" in erro_str:
+                print(f"  → ERRO da API: cota excedida (429). Aguarde antes de tentar novamente.")
+
+            # 404: modelo não encontrado — erro de configuração, não adianta retentar
+            elif "404" in erro_str or "NOT_FOUND" in erro_str:
+                print(f"  → ERRO da API: modelo não encontrado (404). Verifique GEMINI_MODEL no .env.")
+
+            else:
+                print(f"  → ERRO na análise do agente: {e}")
+
+            return None
