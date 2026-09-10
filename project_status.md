@@ -40,18 +40,19 @@ Scheduler → Extrator (HTTP/HTML→Markdown) → Hasher (SHA-256) →
 
 ---
 
-## ⬜ Sprint 2 — Persistência e Pipeline (PRÓXIMO)
+## ✅ Sprint 2 — Persistência e Pipeline (CONCLUÍDO)
 
-O sistema precisa de "memória". Sem isso, toda execução é cega — não sabe o que já viu.
+O sistema agora tem "memória". Ele guarda o hash e o snapshot completo de cada versão da documentação para não chamar a IA desnecessariamente.
 
-### Arquivos a criar
+### Arquivos criados
 
 | Arquivo | O que faz |
 |---|---|
-| `database/database.py` | Engine SQLAlchemy, cria `sentinel.db` local |
-| `database/models.py` | 3 tabelas: `MonitoredSources`, `DocumentSnapshots`, `ChangeAlerts` |
-| `database/repository.py` | CRUD: buscar fontes, salvar snapshot, buscar último snapshot, salvar alerta |
-| `pipeline/workflow.py` | Orquestra tudo: fontes → extrai → hash → compara → agente → salva |
+| `database/database.py` | ✅ Engine SQLAlchemy, cria `sentinel.db` local e `SessionLocal` |
+| `database/models.py` | ✅ 3 tabelas criadas: `MonitoredSource`, `DocumentSnapshot`, `ChangeAlert` |
+| `database/repository.py` | ✅ Funções CRUD isoladas e limpas |
+| `pipeline/workflow.py` | ✅ Orquestrador `run_pipeline()` com tratamento gracioso de erros |
+| `tests/test_sprint2.py`| ✅ Suíte de validação do banco e workflow |
 
 ### Esquema de dados
 
@@ -72,7 +73,7 @@ created_at             ───────────────────
 
 ---
 
-## ⬜ Sprint 3 — Orquestração, Backend e Notificações
+## ⬜ Sprint 3 — Orquestração, Backend e Notificações (PRÓXIMO)
 
 | Arquivo | O que faz |
 |---|---|
@@ -97,13 +98,13 @@ created_at             ───────────────────
 ```
 doc-auditor-agent/
 ├── core/           ✅ completo (extractor, hasher, agent)
-├── database/       ⬜ apenas __init__.py — Sprint 2
-├── pipeline/       ⬜ apenas __init__.py — Sprint 2
+├── database/       ✅ completo (database, models, repository)
+├── pipeline/       ✅ completo (workflow)
 ├── notifications/  ⬜ apenas __init__.py — Sprint 3
 ├── scheduler/      ⬜ apenas __init__.py — Sprint 3
 ├── api/            ⬜ apenas __init__.py — Sprint 3
 ├── app/            ⬜ vazio              — Sprint 4
-├── tests/          ✅ test_sprint1.py
+├── tests/          ✅ completos (sprint1 e sprint2)
 ├── .env            ✅ configurado
 ├── .env.example    ✅ atualizado
 ├── pyproject.toml  ✅ todas dependências declaradas
@@ -114,8 +115,8 @@ doc-auditor-agent/
 
 ## Recomendação de próximo passo
 
-**Iniciar Sprint 2** na seguinte ordem:
-1. `database/database.py` + `database/models.py` (base de tudo)
-2. `database/repository.py` (funções de acesso)
-3. `pipeline/workflow.py` (orquestrador completo)
-4. Validar com `python -c "from pipeline.workflow import run_pipeline; run_pipeline()"`
+**Iniciar Sprint 3** na seguinte ordem:
+1. `notifications/email_sender.py` (função de disparo)
+2. `scheduler/scheduler.py` (APScheduler job configuration)
+3. `api/routes.py` (Endpoints FastAPI)
+4. `main.py` (Ponto de entrada juntando a API e o Scheduler)
