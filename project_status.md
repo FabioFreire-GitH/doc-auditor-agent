@@ -86,12 +86,14 @@ A API REST agora funciona como o cérebro que interliga o banco, o agendador e o
 
 ---
 
-## ⬜ Sprint 4 — Painel Administrativo (Streamlit) (PRÓXIMO)
+## ✅ Sprint 4 — Painel Administrativo (Streamlit) (CONCLUÍDO)
+
+A interface visual está pronta! Qualquer pessoa agora pode operar o sistema sem olhar código.
 
 | Arquivo | O que faz |
 |---|---|
-| `app/streamlit_app.py` | 3 abas: Monitoramento · Alertas · Cadastrar URL |
-| `README.md` | Documentação completa de instalação e uso |
+| `app/streamlit_app.py` | ✅ 3 abas: Monitoramento (listar/status/check), Alertas (visualizar coloridos) e Cadastro. |
+| `README.md` | ✅ Documentação completa de instalação, configuração e uso (2 terminais). |
 
 ---
 
@@ -106,8 +108,8 @@ doc-auditor-agent/
 ├── scheduler/      ✅ completo (scheduler)
 ├── api/            ✅ completo (routes)
 ├── main.py         ✅ entry point configurado
-├── app/            ⬜ vazio              — Sprint 4
-├── tests/          ✅ completos (sprint1 e sprint2)
+├── app/            ✅ completo (streamlit_app)
+├── tests/          ✅ completos (sprint1, sprint2 e sprint3)
 ├── .env            ✅ configurado
 ├── .env.example    ✅ atualizado
 ├── pyproject.toml  ✅ todas dependências declaradas
@@ -118,7 +120,10 @@ doc-auditor-agent/
 
 ## Recomendação de próximo passo
 
-**Iniciar Sprint 4** (Frontend Streamlit):
-1. Desenvolver `app/streamlit_app.py` com 3 abas (Monitoramento, Alertas, Cadastrar).
-2. Ligar o Streamlit à API (consumindo as rotas `http://127.0.0.1:8000/api/...`).
-3. Finalizar `README.md` com as instruções de uso final.
+**PROJETO 100% FINALIZADO! 🎉**
+Todos os Sprints (1, 2, 3 e 4) foram entregues com sucesso.
+O sistema agora possui desde o motor de IA até um frontend limpo.
+
+**Como rodar em definitivo (2 terminais necessários):**
+1. Backend: `uv run uvicorn main:app`
+2. Frontend: `uv run streamlit run app/streamlit_app.py`

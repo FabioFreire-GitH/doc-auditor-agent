@@ -88,8 +88,8 @@ st.markdown("Serviço autônomo de auditoria técnica guiado por IA.")
 
 # Verifica se o Backend está rodando
 try:
-    requests.get(f"{API_URL.replace('/api', '')}/", timeout=1)
-except requests.exceptions.ConnectionError:
+    requests.get(f"{API_URL.replace('/api', '')}/", timeout=5)
+except requests.exceptions.RequestException:
     st.error("🚨 ERRO: O Backend (FastAPI) não está rodando. Por favor, execute `uv run uvicorn main:app` em outro terminal.")
     st.stop()
 
