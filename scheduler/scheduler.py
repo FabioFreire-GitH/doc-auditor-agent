@@ -83,7 +83,7 @@ def start_scheduler(interval_minutes: int = 60):
     print(f"[Scheduler] Iniciado. Rodando a cada {interval_minutes} minuto(s).")
     
     # Desliga limpo ao sair
-    atexit.register(lambda: scheduler.shutdown(wait=False))
+    atexit.register(lambda: scheduler.shutdown(wait=False) if scheduler.running else None)
 
 def stop_scheduler():
     if scheduler.running:

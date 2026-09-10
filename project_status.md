@@ -73,18 +73,20 @@ created_at             ───────────────────
 
 ---
 
-## ⬜ Sprint 3 — Orquestração, Backend e Notificações (PRÓXIMO)
+## ✅ Sprint 3 — Orquestração, Backend e Notificações (CONCLUÍDO)
+
+A API REST agora funciona como o cérebro que interliga o banco, o agendador e o motor.
 
 | Arquivo | O que faz |
 |---|---|
-| `notifications/email_sender.py` | Gmail SMTP, e-mail HTML com severidade destacada |
-| `scheduler/scheduler.py` | APScheduler: roda `workflow.py` em intervalos por URL |
-| `api/routes.py` | FastAPI: CRUD de fontes, trigger manual, listagem de alertas |
-| `main.py` | Entry point: FastAPI + Scheduler integrado |
+| `notifications/email_sender.py` | ✅ Gmail SMTP, e-mail HTML com severidade destacada e badges |
+| `scheduler/scheduler.py` | ✅ APScheduler: roda o `workflow.py` de hora em hora em background |
+| `api/routes.py` | ✅ Rotas da API FastAPI para cadastrar fontes, disparar scans e ler alertas |
+| `main.py` | ✅ Ponto de entrada (Entry point) com gerência do ciclo de vida |
 
 ---
 
-## ⬜ Sprint 4 — Painel Administrativo (Streamlit)
+## ⬜ Sprint 4 — Painel Administrativo (Streamlit) (PRÓXIMO)
 
 | Arquivo | O que faz |
 |---|---|
@@ -100,9 +102,10 @@ doc-auditor-agent/
 ├── core/           ✅ completo (extractor, hasher, agent)
 ├── database/       ✅ completo (database, models, repository)
 ├── pipeline/       ✅ completo (workflow)
-├── notifications/  ⬜ apenas __init__.py — Sprint 3
-├── scheduler/      ⬜ apenas __init__.py — Sprint 3
-├── api/            ⬜ apenas __init__.py — Sprint 3
+├── notifications/  ✅ completo (email_sender)
+├── scheduler/      ✅ completo (scheduler)
+├── api/            ✅ completo (routes)
+├── main.py         ✅ entry point configurado
 ├── app/            ⬜ vazio              — Sprint 4
 ├── tests/          ✅ completos (sprint1 e sprint2)
 ├── .env            ✅ configurado
@@ -115,8 +118,7 @@ doc-auditor-agent/
 
 ## Recomendação de próximo passo
 
-**Iniciar Sprint 3** na seguinte ordem:
-1. `notifications/email_sender.py` (função de disparo)
-2. `scheduler/scheduler.py` (APScheduler job configuration)
-3. `api/routes.py` (Endpoints FastAPI)
-4. `main.py` (Ponto de entrada juntando a API e o Scheduler)
+**Iniciar Sprint 4** (Frontend Streamlit):
+1. Desenvolver `app/streamlit_app.py` com 3 abas (Monitoramento, Alertas, Cadastrar).
+2. Ligar o Streamlit à API (consumindo as rotas `http://127.0.0.1:8000/api/...`).
+3. Finalizar `README.md` com as instruções de uso final.
